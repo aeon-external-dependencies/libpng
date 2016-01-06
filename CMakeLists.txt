@@ -6,7 +6,7 @@
 # For conditions of distribution and use, see the disclaimer
 # and license in png.h
 
-cmake_minimum_required(VERSION 2.4.4)
+cmake_minimum_required(VERSION 3.1.0)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug;MinSizeRel;RelWithDebInfo")
@@ -17,12 +17,16 @@ enable_testing()
 set(PNGLIB_MAJOR 1)
 set(PNGLIB_MINOR 6)
 set(PNGLIB_RELEASE 20)
-set(PNGLIB_NAME libpng${PNGLIB_MAJOR}${PNGLIB_MINOR})
+#set(PNGLIB_NAME libpng${PNGLIB_MAJOR}${PNGLIB_MINOR})
+set(PNGLIB_NAME libpng)
 set(PNGLIB_VERSION ${PNGLIB_MAJOR}.${PNGLIB_MINOR}.${PNGLIB_RELEASE})
+set(SKIP_INSTALL_ALL 1)
 
 # needed packages
-find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIR})
+#find_package(ZLIB REQUIRED)
+#include_directories(${ZLIB_INCLUDE_DIR})
+
+set(ZLIB_LIBRARY zlibstatic)
 
 if(NOT WIN32)
   find_library(M_LIBRARY
@@ -38,9 +42,9 @@ else()
 endif()
 
 # COMMAND LINE OPTIONS
-option(PNG_SHARED "Build shared lib" ON)
+option(PNG_SHARED "Build shared lib" OFF)
 option(PNG_STATIC "Build static lib" ON)
-option(PNG_TESTS  "Build libpng tests" ON)
+option(PNG_TESTS  "Build libpng tests" OFF)
 
 # Many more configuration options could be added here
 option(PNG_FRAMEWORK "Build OS X framework" OFF)
@@ -48,7 +52,8 @@ option(PNG_DEBUG     "Build with debug output" OFF)
 option(PNGARG        "Disable ANSI-C prototypes" OFF)
 
 # SET LIBNAME
-set(PNG_LIB_NAME png${PNGLIB_MAJOR}${PNGLIB_MINOR})
+#set(PNG_LIB_NAME png${PNGLIB_MAJOR}${PNGLIB_MINOR})
+set(PNG_LIB_NAME png)
 
 # to distinguish between debug and release lib
 set(CMAKE_DEBUG_POSTFIX "d")
@@ -109,12 +114,16 @@ if(PNG_DEBUG)
 endif()
 
 # NOW BUILD OUR TARGET
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${ZLIB_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 unset(PNG_LIB_TARGETS)
 
 if(PNG_SHARED)
   add_library(${PNG_LIB_NAME} SHARED ${libpng_sources})
+  
+  set_target_properties(${PNG_LIB_NAME} PROPERTIES FOLDER "External/png")
+  target_include_directories(${PNG_LIB_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  
   set(PNG_LIB_TARGETS ${PNG_LIB_NAME})
   if(MSVC)
     # msvc does not append 'lib' - do it here to have consistent name
@@ -128,6 +137,10 @@ if(PNG_STATIC)
   # does not work without changing name
   set(PNG_LIB_NAME_STATIC ${PNG_LIB_NAME}_static)
   add_library(${PNG_LIB_NAME_STATIC} STATIC ${libpng_sources})
+  
+  set_target_properties(${PNG_LIB_NAME_STATIC} PROPERTIES FOLDER "External/png")
+  target_include_directories(${PNG_LIB_NAME_STATIC} PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  
   list(APPEND PNG_LIB_TARGETS ${PNG_LIB_NAME_STATIC})
   if(MSVC)
     # msvc does not append 'lib' - do it here to have consistent name
@@ -139,6 +152,10 @@ endif()
 if(PNG_FRAMEWORK)
   set(PNG_LIB_NAME_FRAMEWORK ${PNG_LIB_NAME}_framework)
   add_library(${PNG_LIB_NAME_FRAMEWORK} SHARED ${libpng_sources})
+  
+  set_target_properties(${PNG_LIB_NAME_FRAMEWORK} PROPERTIES FOLDER "External/png")
+  target_include_directories(${PNG_LIB_NAME_FRAMEWORK} PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  
   list(APPEND PNG_LIB_TARGETS ${PNG_LIB_NAME_FRAMEWORK})
   set_target_properties(${PNG_LIB_NAME_FRAMEWORK} PROPERTIES
     FRAMEWORK TRUE
