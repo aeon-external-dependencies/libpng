@@ -55,7 +55,7 @@ option(PNGARG        "Disable ANSI-C prototypes" OFF)
 set(PNG_LIB_NAME png)
 
 # to distinguish between debug and release lib
-set(CMAKE_DEBUG_POSTFIX "d")
+#set(CMAKE_DEBUG_POSTFIX "d")
 
 # Use the prebuilt pnglibconf.h file from the scripts folder
 # TODO: fix this by building with awk; without this no cmake build can be
