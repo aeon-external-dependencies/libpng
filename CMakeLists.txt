@@ -226,6 +226,7 @@ if(NOT AWK)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/scripts/pnglibconf.h.prebuilt
                  ${CMAKE_CURRENT_BINARY_DIR}/pnglibconf.h)
   add_custom_target(genfiles) # Dummy
+  set_target_properties(genfiles PROPERTIES FOLDER "External/png")
 else()
   include(CMakeParseArguments)
   # Generate .chk from .out with awk
